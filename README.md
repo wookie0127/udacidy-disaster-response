@@ -11,7 +11,7 @@
   3. Run web app
     - python app/run.py
 
-## Explanations
+## Explanation
   - app
     - html files for web
     - web app script
