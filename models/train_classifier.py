@@ -1,4 +1,10 @@
+'''
+Train script for modeling classification
+'''
+# global
 import sys
+
+# dependenies
 import pandas as pd
 import nltk
 
@@ -13,7 +19,19 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.externals import joblib
 
-def load_data(database_filepath):
+# custom
+
+
+def load_data(database_filepath:str) -> tuple:
+    """
+    Load data from database file
+
+    Args:
+        database_filepath (str): data merged disaster messages and categories
+
+    Returns:
+        tuple: features, answer, category_names 
+    """
     engine = create_engine(f'sqlite:///{database_filepath}')
     df = pd.read_sql_table('disaster_response', engine)
     X = df.message.values
@@ -22,7 +40,16 @@ def load_data(database_filepath):
     return X, Y, category_names
 
 
-def tokenize(text):
+def tokenize(text:str) -> list:
+    """
+    tokenize text
+
+    Args:
+        text (str)
+
+    Returns:
+        list: consisting of tokens
+    """
     tokens = nltk.word_tokenize(text)
     lemmatizer = nltk.stem.WordNetLemmatizer()
     clean_tokens = []
@@ -33,7 +60,13 @@ def tokenize(text):
 
 
 
-def build_model():
+def build_model() -> object:
+    """
+    Build model using pipeline to handle text data
+
+    Returns:
+        object: Pipeline containing vectorizeing and classifier
+    """
     return Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
         ('tfidf', TfidfTransformer()),
@@ -42,7 +75,16 @@ def build_model():
 
 
 
-def evaluate_model(model, X_test, Y_test, category_names):
+def evaluate_model(model:object, X_test:object, Y_test:object, category_names:list) -> None:
+    """
+    Evaluate model and display
+
+    Args:
+        model (object): Pipeline
+        X_test (object): Pandas.Series
+        Y_test (object): Pandas.Series
+        category_names (list): list containing category names
+    """
     y_pred = model.predict(X_test)
     for idx, colname in enumerate(category_names):
         print('-'*20)
@@ -51,14 +93,24 @@ def evaluate_model(model, X_test, Y_test, category_names):
         print('-'*20)
 
 
-def save_model(model, model_filepath):
+def save_model(model:object, model_filepath:str) -> None:
+    """
+    Save model into model_filepath
+
+    Args:
+        model (object): trained model
+        model_filepath (str): filepath having pickle as extension 
+    """
     joblib.dump(model, model_filepath)
 
 
 def main():
     if len(sys.argv) == 3:
         database_filepath, model_filepath = sys.argv[1:]
-        print('Loading data...\n    DATABASE: {}'.format(database_filepath))
+        print(f'''
+              Loading data...
+              DATABASE: {database_filepath}
+              ''')
         X, Y, category_names = load_data(database_filepath)
         X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
         
@@ -71,7 +123,10 @@ def main():
         print('Evaluating model...')
         evaluate_model(model, X_test, Y_test, category_names)
 
-        print('Saving model...\n    MODEL: {}'.format(model_filepath))
+        print(f'''
+              Saving model...
+              MODEL: {model_filepath}
+              ''')
         save_model(model, model_filepath)
 
         print('Trained model saved!')
