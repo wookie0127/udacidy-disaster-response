@@ -44,6 +44,7 @@ def clean_data(df:object) -> object:
     
     for column in categories:
         categories[column] = categories.loc[:, column].apply(lambda x: x[-1])
+        categories[column] = categories.loc[:, column].apply(lambda x: int(x) != 2)
         categories[column] = categories.loc[:, column].astype(int)
         
     df.drop(columns=['categories'], inplace=True)

@@ -5,6 +5,7 @@ Run web app
 import os
 
 # dependencies
+import joblib
 import json
 import plotly
 import pandas as pd
@@ -15,7 +16,6 @@ from nltk.tokenize import word_tokenize
 from flask import Flask
 from flask import render_template, request
 from plotly.graph_objs import Bar
-from sklearn.externals import joblib
 from sqlalchemy import create_engine
 
 # custom
@@ -59,6 +59,8 @@ def index():
     
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
+    category_names = df.iloc[:,4:].columns
+    category_boolean = df.iloc[:,4:].sum().values / 1000
     
     graphs = [
         {
@@ -76,6 +78,24 @@ def index():
                 },
                 'xaxis': {
                     'title': "Genre"
+                }
+            }
+        },
+        {
+            'data': [
+                Bar(
+                    x=category_names,
+                    y=category_boolean
+                )
+            ],
+
+            'layout': {
+                'title': 'Distribution of Message Categories',
+                'yaxis': {
+                    'title': "Count (k)"
+                },
+                'xaxis': {
+                    'title': "Category",
                 }
             }
         }
