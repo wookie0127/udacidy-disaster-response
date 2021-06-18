@@ -7,6 +7,8 @@ import sys
 # dependenies
 import pandas as pd
 import nltk
+nltk.download('punkt')
+nltk.download('wordnet')
 
 from sqlalchemy import create_engine
 
@@ -14,10 +16,9 @@ from sklearn.pipeline import Pipeline
 from sklearn.metrics import classification_report
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.externals import joblib
+import joblib
 
 # custom
 
@@ -67,11 +68,17 @@ def build_model() -> object:
     Returns:
         object: Pipeline containing vectorizeing and classifier
     """
-    return Pipeline([
+    pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
         ('tfidf', TfidfTransformer()),
         ('clf', MultiOutputClassifier(KNeighborsClassifier()))
     ])
+    parameters = {
+        'vect__max_df':[0.75,1.0],
+        'clf__estimator__n_neighbors': [5, 6]
+    }
+    cv = GridSearchCV(pipeline, param_grid=parameters)
+    return cv
 
 
 
