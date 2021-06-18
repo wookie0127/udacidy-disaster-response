@@ -1,1 +1,1 @@
-# Udacity-Disaster-Response-Pipelines Project
+# Disaster Response Pipeline Project
